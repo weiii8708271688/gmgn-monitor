@@ -1,0 +1,74 @@
+{
+  "hasPosition": true,
+  "entryPrice": 0.00029131487556257284,
+  "averagePrice": 0.00029131487556257284,
+  "totalTokens": 371520.7258233209,
+  "totalInvestedUSD": 108.22951401213747,
+  "totalInvestedBNB": 0.32499867059372095,
+  "addPositionCount": 0,
+  "purchases": [],
+  "sales": [
+    {
+      "timestamp": 1763390931836,
+      "type": "partial_take_profit",
+      "priceUSD": 0.00027891327868016645,
+      "tokenAmount": 35853.438198857264,
+      "bnbReceived": 0.010816488392874411,
+      "usdReceived": 10.023856123444574,
+      "profitUSD": 0.9734539179878521,
+      "profitPercent": 10.755918862931102,
+      "txHash": "0x842a34d227ac4d92bbec26785a39608aec56d9e4e5956866805cd0b09d383acd",
+      "keepTokens": 360299.5435685199,
+      "keepValue": 100.49232700366336
+    },
+    {
+      "timestamp": 1763391345733,
+      "type": "break_even",
+      "priceUSD": 0.0002373025115368048,
+      "tokenAmount": 844880.7629773767,
+      "bnbReceived": 0.21689837428954004,
+      "usdReceived": 199.2233257686854,
+      "profitUSD": 0,
+      "profitPercent": 0,
+      "txHash": "0xe29d3eac57cf92b1da4e66c0ce815fa14638753565458b7b02e4726330229d18",
+      "keepTokens": 446423.99666792306,
+      "keepValue": 100
+    },
+    {
+      "timestamp": 1763391494509,
+      "type": "partial_take_profit",
+      "priceUSD": 0.0002640662483580619,
+      "tokenAmount": 37869.2849320162,
+      "bnbReceived": 0.010936687249912256,
+      "usdReceived": 10.04764394336689,
+      "profitUSD": 1.0611675188965677,
+      "profitPercent": 11.808493883175293,
+      "txHash": "0xec3c892be1e1d7ea4d2c46ee8d7d480e25f76dc3a7d6d72c208825f5e92decd8",
+      "keepTokens": 408554.71173590684,
+      "keepValue": 107.88550997711036
+    },
+    {
+      "timestamp": 1763391630983,
+      "type": "partial_take_profit",
+      "priceUSD": 0.00029131487556257284,
+      "tokenAmount": 37033.9859125859,
+      "bnbReceived": 0.011435269391059653,
+      "usdReceived": 10.511299624262033,
+      "profitUSD": 0.7318739025801602,
+      "profitPercent": 7.483812683985415,
+      "txHash": "0x2d1d03af14b69a0176a9fa42209a271c00f8f35d0488240adbc1661fc937970d",
+      "keepTokens": 371520.7258233209,
+      "keepValue": 108.22951401213747
+    }
+  ],
+  "stats": {
+    "totalTrades": 3,
+    "totalProfit": 2.76649533946458,
+    "totalLoss": 0,
+    "winRate": 100,
+    "maxProfit": 1.0611675188965677,
+    "maxLoss": 0,
+    "totalFees": 0
+  },
+  "lastUpdated": 1763391630983
+}

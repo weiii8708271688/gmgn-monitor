@@ -1,0 +1,67 @@
+{
+  "hasPosition": true,
+  "entryPrice": 0.00018342612576858748,
+  "averagePrice": 0.00012107793798174881,
+  "totalTokens": 2890700.0386210633,
+  "totalInvestedUSD": 350,
+  "totalInvestedBNB": 0.5072848189139985,
+  "addPositionCount": 2,
+  "purchases": [
+    {
+      "timestamp": 1764250851609,
+      "type": "add_position",
+      "priceUSD": 0.00013543999479791362,
+      "bnbAmount": 0.11266209258570768,
+      "usdAmount": 100,
+      "tokensReceived": 699733.3321338606,
+      "txHash": "0xa49549b4db51d96831b5279b5822e2479474a2eaa160e4b87cb80ad341ec9acd"
+    },
+    {
+      "timestamp": 1764251927599,
+      "type": "add_position",
+      "priceUSD": 0.00009022830863924295,
+      "bnbAmount": 0.2251339547030483,
+      "usdAmount": 200,
+      "tokensReceived": 1910880.8138131797,
+      "txHash": "0x86e8c159053a9f449a7b30f5af4ec3c718101f2d022302a1ffc69c36c8d41d11"
+    }
+  ],
+  "sales": [
+    {
+      "timestamp": 1764249186868,
+      "type": "partial_take_profit",
+      "priceUSD": 0.0002215007851027129,
+      "tokenAmount": 11286.64171027979,
+      "bnbReceived": 0.002624893414602257,
+      "usdReceived": 2.3283592055546403,
+      "profitUSD": 0.008606756088993528,
+      "profitPercent": 0.3710204548324149,
+      "txHash": "0xdc19661816960d5355db59227ac23b48b08c81061503a17578464fc283cd99e2",
+      "keepTokens": 231985.90473922735,
+      "keepValue": 50
+    },
+    {
+      "timestamp": 1764250630905,
+      "type": "break_even",
+      "priceUSD": 0.0001859835298187131,
+      "tokenAmount": 537682.0200018502,
+      "bnbReceived": 0.10772816242704264,
+      "usdReceived": 95.3081825808289,
+      "profitUSD": 0,
+      "profitPercent": 0,
+      "txHash": "0xdad44531587fdceacc2a423da470e3e7831c5b45c3243cb5ba100877b0553c8f",
+      "keepTokens": 280085.89267402305,
+      "keepValue": 50
+    }
+  ],
+  "stats": {
+    "totalTrades": 1,
+    "totalProfit": 0.008606756088993528,
+    "totalLoss": 0,
+    "winRate": 100,
+    "maxProfit": 0.008606756088993528,
+    "maxLoss": 0,
+    "totalFees": 0
+  },
+  "lastUpdated": 1764251927599
+}

@@ -1,0 +1,31 @@
+{
+  "hasPosition": true,
+  "entryPrice": 0.00017192839210717362,
+  "averagePrice": 0.00017192839210717362,
+  "totalTokens": 290818.74952237034,
+  "totalInvestedUSD": 50,
+  "totalInvestedBNB": 0.058311077938586774,
+  "addPositionCount": 0,
+  "purchases": [
+    {
+      "timestamp": 1764146167543,
+      "type": "entry",
+      "priceUSD": 0.0001630299909845647,
+      "bnbAmount": 0.058311077938586774,
+      "usdAmount": 50,
+      "tokensReceived": 290818.74952237034,
+      "txHash": "0x1570f0df9fc74cfb3daca4b48c65115a6ad4d7b8c71c90bed992673eaa99c47e"
+    }
+  ],
+  "sales": [],
+  "stats": {
+    "totalTrades": 0,
+    "totalProfit": 0,
+    "totalLoss": 0,
+    "winRate": 0,
+    "maxProfit": 0,
+    "maxLoss": 0,
+    "totalFees": 0
+  },
+  "lastUpdated": 1764146167543
+}

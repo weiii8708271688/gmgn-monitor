@@ -1,0 +1,48 @@
+{
+  "hasPosition": true,
+  "entryPrice": 0.0006275537932726674,
+  "averagePrice": 0.0006275537932726674,
+  "totalTokens": 15948.352341085345,
+  "totalInvestedUSD": 10,
+  "totalInvestedBNB": 0.03137342954159592,
+  "addPositionCount": 0,
+  "purchases": [],
+  "sales": [
+    {
+      "timestamp": 1762917410074,
+      "type": "break_even",
+      "priceUSD": 0.0006275537932726674,
+      "tokenAmount": 31901.647658914655,
+      "bnbReceived": 0.020801870544161,
+      "usdReceived": 20.0134796505373,
+      "profitUSD": 0,
+      "profitPercent": 0,
+      "txHash": "0xf56bdce525a9700b8f65969a132d019140c12130e7bd72219dc807ab179c2a0e",
+      "keepTokens": 15948.352341085345,
+      "keepValue": 10
+    },
+    {
+      "timestamp": 1762917411880,
+      "type": "break_even",
+      "priceUSD": 0.0006275537932726674,
+      "tokenAmount": 31901.647658914655,
+      "bnbReceived": 0.020801870544161,
+      "usdReceived": 20.0134796505373,
+      "profitUSD": 0,
+      "profitPercent": 0,
+      "txHash": "0xb92f9b97a18ff05f7f47c00b37b35c54ecded3dfce3cc3fb9a22fab8da0d3dbd",
+      "keepTokens": 15948.352341085345,
+      "keepValue": 10
+    }
+  ],
+  "stats": {
+    "totalTrades": 0,
+    "totalProfit": 0,
+    "totalLoss": 0,
+    "winRate": 0,
+    "maxProfit": 0,
+    "maxLoss": 0,
+    "totalFees": 0
+  },
+  "lastUpdated": 1762917411880
+}

@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "Bash(npm install)",
+      "Bash(npm run init-db:*)",
+      "Bash(tree:*)",
+      "WebSearch",
+      "Bash(node test-solana-pool.js:*)",
+      "Bash(node:*)",
+      "Bash(sqlite3:*)",
+      "Bash(printf:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

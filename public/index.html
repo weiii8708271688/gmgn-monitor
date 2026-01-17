@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>加密貨幣交易機器人</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 加密貨幣交易機器人</h1>
+            <div class="status-bar">
+                <span id="status">● 運行中</span>
+                <span id="stats"></span>
+            </div>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="tokens">代幣管理</button>
+            <button class="tab-btn" data-tab="orders">掛單管理</button>
+            <button class="tab-btn" data-tab="alerts">價格提醒</button>
+            <button class="tab-btn" data-tab="prices">價格監控</button>
+            <button class="tab-btn" data-tab="gmgn">GMGN監控</button>
+            <button class="tab-btn" data-tab="wallet">錢包餘額</button>
+        </nav>
+
+        <!-- 代幣管理 -->
+        <div id="tokens" class="tab-content active">
+            <div class="section-header">
+                <h2>代幣管理</h2>
+                <button class="btn btn-primary" onclick="openAddTokenModal()">+ 添加代幣</button>
+            </div>
+            <div id="tokensList" class="list"></div>
+        </div>
+
+        <!-- 掛單管理 -->
+        <div id="orders" class="tab-content">
+            <div class="section-header">
+                <h2>掛單管理</h2>
+                <button class="btn btn-primary" onclick="openAddOrderModal()">+ 建立掛單</button>
+            </div>
+            <div id="ordersList" class="list"></div>
+        </div>
+
+        <!-- 價格提醒 -->
+        <div id="alerts" class="tab-content">
+            <div class="section-header">
+                <h2>價格提醒</h2>
+                <button class="btn btn-primary" onclick="openAddAlertModal()">+ 建立提醒</button>
+            </div>
+            <div id="alertsList" class="list"></div>
+        </div>
+
+        <!-- 價格監控 -->
+        <div id="prices" class="tab-content">
+            <div class="section-header">
+                <h2>價格監控</h2>
+                <button class="btn btn-primary" onclick="refreshPrices()">🔄 刷新</button>
+            </div>
+            <div id="pricesList" class="list"></div>
+        </div>
+
+        <!-- GMGN 監控 -->
+        <div id="gmgn" class="tab-content">
+            <div class="section-header">
+                <h2>GMGN 新幣監控</h2>
+                <div>
+                    <button id="gmgnToggleBtn" class="btn btn-primary" onclick="toggleGMGNMonitoring()">
+                        <span id="gmgnToggleText">啟動監控</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="checkGMGNNow()">立即檢查</button>
+                    <button class="btn btn-secondary" onclick="openAuthTokenModal()">設置 Token</button>
+                    <button class="btn btn-secondary" onclick="playNotificationSound()" title="測試提示音">🔔 測試音效</button>
+                </div>
+            </div>
+
+            <div class="gmgn-status-panel">
+                <div class="status-card">
+                    <h3>監控狀態</h3>
+                    <p id="gmgnStatus" class="status-indicator">● 未啟動</p>
+                    <p id="gmgnAuthStatus" class="auth-status">Auth Token: 未設置</p>
+                </div>
+                <div class="status-card">
+                    <h3>統計信息</h3>
+                    <div id="gmgnStats">
+                        <p>總監控: <strong id="statsTotal">0</strong></p>
+                        <p>最近1小時: <strong id="statsLastHour">0</strong></p>
+                        <p>最近24小時: <strong id="statsLast24h">0</strong></p>
+                        <p>已過濾(高持倉率): <strong id="statsFiltered">0</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h3>已發現的代幣</h3>
+                <button class="btn btn-secondary" onclick="refreshGMGNTokens()">🔄 刷新</button>
+            </div>
+            <div id="gmgnTokensList" class="list"></div>
+        </div>
+
+        <!-- 錢包餘額 -->
+        <div id="wallet" class="tab-content">
+            <div class="section-header">
+                <h2>錢包餘額記錄</h2>
+                <div>
+                    <button class="btn btn-primary" onclick="recordBalanceNow()">📊 立即記錄</button>
+                    <button class="btn btn-secondary" onclick="refreshWalletBalance()">🔄 刷新</button>
+                </div>
+            </div>
+
+            <div class="wallet-info-card">
+                <h3>錢包地址</h3>
+                <p class="wallet-address">0xe074e46aaa9d3588bed825881c9185a16f9a8555</p>
+                <p class="help-text">自動記錄時間：每天中午12:00和凌晨00:00</p>
+            </div>
+
+            <div id="latestBalanceCard" class="latest-balance-card">
+                <h3>即時餘額 🔴 LIVE</h3>
+                <div id="latestBalanceContent">
+                    <p>載入中...</p>
+                </div>
+            </div>
+
+            <div id="lastRecordCard" class="last-record-card">
+                <h3>上次記錄</h3>
+                <div id="lastRecordContent">
+                    <p>載入中...</p>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h3>歷史記錄</h3>
+            </div>
+            <div id="walletBalanceList" class="list"></div>
+        </div>
+    </div>
+
+    <!-- 設置 Auth Token Modal -->
+    <div id="authTokenModal" class="modal">
+        <div class="modal-content">
+            <h3>設置 GMGN Auth Token</h3>
+            <p class="help-text">從 GMGN 網站的請求中獲取 Authorization header 的值</p>
+            <form id="authTokenForm">
+                <div class="form-group">
+                    <label>Auth Token: <span class="required">*</span></label>
+                    <textarea name="token" required rows="5" placeholder="eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeAuthTokenModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 添加代幣 Modal -->
+    <div id="addTokenModal" class="modal">
+        <div class="modal-content">
+            <h3>添加代幣</h3>
+            <p class="help-text">只需輸入鏈和代幣地址，系統會自動抓取其他資訊</p>
+            <form id="addTokenForm">
+                <div class="form-group">
+                    <label>區塊鏈: <span class="required">*</span></label>
+                    <select name="chain" required>
+                        <option value="bsc">BSC (BNB Chain)</option>
+                        <option value="solana">Solana</option>
+                        <option value="base">Base</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>代幣地址: <span class="required">*</span></label>
+                    <input type="text" name="address" required placeholder="例如: 0x... 或 Solana mint address">
+                </div>
+                <div class="divider">
+                    <span>以下欄位可選填（留空則自動抓取）</span>
+                </div>
+                <div class="form-group">
+                    <label>代幣符號 (選填):</label>
+                    <input type="text" name="symbol" placeholder="自動抓取">
+                </div>
+                <div class="form-group">
+                    <label>精度 (選填):</label>
+                    <input type="number" name="decimals" placeholder="自動抓取">
+                </div>
+                <div class="form-group">
+                    <label>交易對地址 (選填):</label>
+                    <input type="text" name="pair_address" placeholder="自動抓取">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn" onclick="closeModal('addTokenModal')">取消</button>
+                    <button type="submit" class="btn btn-primary">確認添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 建立掛單 Modal -->
+    <div id="addOrderModal" class="modal">
+        <div class="modal-content">
+            <h3>建立掛單</h3>
+            <form id="addOrderForm">
+                <div class="form-group">
+                    <label>選擇代幣:</label>
+                    <select name="token_id" id="orderTokenSelect" required>
+                        <option value="">請選擇代幣</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>訂單類型:</label>
+                    <select name="type" required>
+                        <option value="limit_buy">限價買入</option>
+                        <option value="limit_sell">限價賣出</option>
+                        <option value="stop_loss">止損</option>
+                        <option value="take_profit">止盈</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>目標價格:</label>
+                    <input type="number" name="target_price" step="0.000000001" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn" onclick="closeModal('addOrderModal')">取消</button>
+                    <button type="submit" class="btn btn-primary">確認建立</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 建立提醒 Modal -->
+    <div id="addAlertModal" class="modal">
+        <div class="modal-content">
+            <h3>建立價格提醒</h3>
+            <form id="addAlertForm">
+                <div class="form-group">
+                    <label>選擇代幣:</label>
+                    <select name="token_id" id="alertTokenSelect" required onchange="onAlertTokenChange(this.value)">
+                        <option value="">請選擇代幣</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>提醒類型:</label>
+                    <select name="alert_type" id="alertTypeSelect" required onchange="onAlertTypeChange(this.value)">
+                        <option value="price">價格</option>
+                        <option value="marketcap">市值</option>
+                    </select>
+                </div>
+                <div id="currentDataDisplay" class="info-box" style="display:none; margin: 10px 0; padding: 10px; background: #f0f0f0; border-radius: 5px;">
+                    <span id="currentDataText"></span>
+                </div>
+                <div class="form-group">
+                    <label>提醒條件:</label>
+                    <select name="condition" required>
+                        <option value="above">高於</option>
+                        <option value="below">低於</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label id="targetLabel">目標價格:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="number" name="target_price" id="targetPriceInput" step="0.000000001" required style="flex: 1;">
+                        <select name="unit" id="unitSelect" style="display:none; width: 80px;">
+                            <option value="K">K (千)</option>
+                            <option value="M">M (百萬)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn" onclick="closeModal('addAlertModal')">取消</button>
+                    <button type="submit" class="btn btn-primary">確認建立</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>

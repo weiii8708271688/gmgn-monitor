@@ -1,0 +1,119 @@
+{
+  "hasPosition": true,
+  "entryPrice": 0.0000219811442976201,
+  "averagePrice": 0.00001822269052463889,
+  "totalTokens": 8231495.771559369,
+  "totalInvestedUSD": 150,
+  "totalInvestedBNB": 0.17931751083064995,
+  "addPositionCount": 1,
+  "purchases": [
+    {
+      "timestamp": 1763662304553,
+      "type": "entry",
+      "priceUSD": 0.00001636221001478176,
+      "bnbAmount": 0.05674595968767024,
+      "usdAmount": 50,
+      "tokensReceived": 3020164.214511308,
+      "txHash": "0xd3ab909c8012bb5c70b8d7c7968bc88ef1c037a58397f80eba66ab0b00ac45c5"
+    },
+    {
+      "timestamp": 1763721722486,
+      "type": "add_position",
+      "priceUSD": 0.00001647360519689115,
+      "bnbAmount": 0.12257155114297971,
+      "usdAmount": 100,
+      "tokensReceived": 5956818.9247578345,
+      "txHash": "0x2b0abfae4e36e9bf341b1dae4070041e394b4a18488a9cc6c1cf3595f3972974"
+    }
+  ],
+  "sales": [
+    {
+      "timestamp": 1763697146784,
+      "type": "partial_take_profit",
+      "priceUSD": 0.0000182500424709786,
+      "tokenAmount": 136985.98257924741,
+      "bnbReceived": 0.0028851406572070297,
+      "usdReceived": 2.4971757930324,
+      "profitUSD": 0.22931926521420865,
+      "profitPercent": 10.111718373773273,
+      "txHash": "0xafd54ac11c0455a74a3071c5581f27908913978136391e1b1aa2f4edd758fbf2",
+      "keepTokens": 2883178.2319320603,
+      "keepValue": 50
+    },
+    {
+      "timestamp": 1763697155056,
+      "type": "partial_take_profit",
+      "priceUSD": 0.000018238233982004908,
+      "tokenAmount": 137074.67523811085,
+      "bnbReceived": 0.0028874699056157353,
+      "usdReceived": 2.4991918274075875,
+      "profitUSD": 0.12204646539063191,
+      "profitPercent": 5.134160802311145,
+      "txHash": "0x82bab6998e98f5c138f284cfa96597bcc40de623ba5a4b7975075eff01098adf",
+      "keepTokens": 2746103.5566939493,
+      "keepValue": 50
+    },
+    {
+      "timestamp": 1763702073678,
+      "type": "partial_take_profit",
+      "priceUSD": 0.000020225722278002402,
+      "tokenAmount": 123604.9801157911,
+      "bnbReceived": 0.0028894534461684045,
+      "usdReceived": 2.4992327582633616,
+      "profitUSD": 0.24868070216027904,
+      "profitPercent": 11.049764500487905,
+      "txHash": "0xdf9257d3cc1f3e6c8226821e30c8dd8bef9790aef0ca4f700230964496428c80",
+      "keepTokens": 2622498.576578158,
+      "keepValue": 50
+    },
+    {
+      "timestamp": 1763709083687,
+      "type": "partial_take_profit",
+      "priceUSD": 0.000020928577077451888,
+      "tokenAmount": 119453.89267259167,
+      "bnbReceived": 0.0029094508636667675,
+      "usdReceived": 2.475098944229956,
+      "profitUSD": 0.19761643690948727,
+      "profitPercent": 8.67696837513757,
+      "txHash": "0x5bddd53f5df7dd7e247889570bae7973f38e41f86f8f11bbb5b3bb73fecbdc24",
+      "keepTokens": 2503044.683905566,
+      "keepValue": 50
+    },
+    {
+      "timestamp": 1763709113252,
+      "type": "partial_take_profit",
+      "priceUSD": 0.00002179465685161905,
+      "tokenAmount": 114707.01360523066,
+      "bnbReceived": 0.0029378460994638027,
+      "usdReceived": 2.4992550552748516,
+      "profitUSD": 0.20790535738910876,
+      "profitPercent": 9.073488764327228,
+      "txHash": "0xf30d6a292e14d20cc95a73be652fec2bccf160e374e78f52c2658221d1e50db2",
+      "keepTokens": 2388337.6703003356,
+      "keepValue": 50
+    },
+    {
+      "timestamp": 1763709144453,
+      "type": "partial_take_profit",
+      "priceUSD": 0.0000219952655896986,
+      "tokenAmount": 113660.82349880176,
+      "bnbReceived": 0.0029365040932056267,
+      "usdReceived": 2.499258633727309,
+      "profitUSD": 0.1197621137794238,
+      "profitPercent": 5.033086317858821,
+      "txHash": "0x019ae680d24486779833dba7959b4f74f0e30082ee6e0822c7602f304ba56988",
+      "keepTokens": 2274676.846801534,
+      "keepValue": 50
+    }
+  ],
+  "stats": {
+    "totalTrades": 6,
+    "totalProfit": 1.1253303408431394,
+    "totalLoss": 0,
+    "winRate": 100,
+    "maxProfit": 0.24868070216027904,
+    "maxLoss": 0,
+    "totalFees": 0
+  },
+  "lastUpdated": 1763721722486
+}

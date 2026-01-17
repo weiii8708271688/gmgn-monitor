@@ -1,0 +1,16 @@
+# Environment variables
+.env
+
+# GMGN session data (contains sensitive tokens and cookies)
+.gmgn-session.json
+
+# Node modules
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db

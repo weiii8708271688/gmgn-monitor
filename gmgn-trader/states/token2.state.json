@@ -1,0 +1,180 @@
+{
+  "hasPosition": true,
+  "entryPrice": 0.00009840213800623435,
+  "averagePrice": 0.00005046192752395602,
+  "totalTokens": 3157414.5650258204,
+  "totalInvestedUSD": 159.32922494341608,
+  "totalInvestedBNB": 0.32450907858467476,
+  "addPositionCount": 3,
+  "purchases": [
+    {
+      "timestamp": 1762963382289,
+      "type": "add_position",
+      "priceUSD": 0.00007688528251890787,
+      "bnbAmount": 0.021096823873165894,
+      "usdAmount": 20,
+      "tokensReceived": 250565.4064374311,
+      "txHash": "0xc1473fe3c1068f94c1169621e1490b615f7b9aee4c3961665d503eaeb099c034"
+    },
+    {
+      "timestamp": 1762963509378,
+      "type": "add_position",
+      "priceUSD": 0.00005733447430480392,
+      "bnbAmount": 0.042162071000927566,
+      "usdAmount": 40,
+      "tokensReceived": 686437.9186630528,
+      "txHash": "0x432f612e3734821cf69d9a26fc592546a501f28016bb882a465a701705d6e088"
+    },
+    {
+      "timestamp": 1762968006945,
+      "type": "add_position",
+      "priceUSD": 0.00003909264853893291,
+      "bnbAmount": 0.08492298546755411,
+      "usdAmount": 80,
+      "tokensReceived": 2023980.2950794888,
+      "txHash": "0x959b65af6a837a69673045f7b5590ce7c48bddea7455b7c3a3b0336a482acb59"
+    }
+  ],
+  "sales": [
+    {
+      "timestamp": 1762936523234,
+      "type": "break_even",
+      "priceUSD": 0.00007947050405772241,
+      "tokenAmount": 508291.81251673657,
+      "bnbReceived": 0.041890810107681684,
+      "usdReceived": 40.30691857751024,
+      "profitUSD": 0,
+      "profitPercent": 0,
+      "txHash": "0x6c90f6f4ab0ce6f0f73f083f8b2f1325ee957e5c655360bc9b0d58a084e0ce84",
+      "keepTokens": 349970.00781710865,
+      "keepValue": 10
+    },
+    {
+      "timestamp": 1762938093512,
+      "type": "break_even",
+      "priceUSD": 0.000089789889961184,
+      "tokenAmount": 223187.71087327602,
+      "bnbReceived": 0.020765280879608522,
+      "usdReceived": 20.019807296030578,
+      "profitUSD": 0,
+      "profitPercent": 0,
+      "txHash": "0x37f05577d41a951eed4f614a95f8fea07ab52f0544d904a4fef7edfaeeb3fc44",
+      "keepTokens": 117102.29694383263,
+      "keepValue": 10
+    },
+    {
+      "timestamp": 1762942340050,
+      "type": "partial_take_profit",
+      "priceUSD": 0.00010944968227282714,
+      "tokenAmount": 18273.237148505967,
+      "bnbReceived": 0.002028604683268704,
+      "usdReceived": 1.9633038985142843,
+      "profitUSD": 0.32255194571531387,
+      "profitPercent": 19.65878786035087,
+      "txHash": "0xd5925845f6314c6dab9b108d8e8ed5e79c7cb015cc1b407579f69e7d5020189b",
+      "keepTokens": 98829.05979532666,
+      "keepValue": 10.816809193920738
+    },
+    {
+      "timestamp": 1762942874853,
+      "type": "partial_take_profit",
+      "priceUSD": 0.00013206807691436168,
+      "tokenAmount": 16380.6567743616,
+      "bnbReceived": 0.002252222770956986,
+      "usdReceived": 2.1802867756526196,
+      "profitUSD": 0.38742909627850897,
+      "profitPercent": 21.609584560764524,
+      "txHash": "0x5b26a824cdf2a8278e0c44e9df033c0be1d8e96edde72ef67fcc9826cd13c61f",
+      "keepTokens": 82448.40302096505,
+      "keepValue": 10.888802031639102
+    },
+    {
+      "timestamp": 1762946855075,
+      "type": "break_even",
+      "priceUSD": 0.00010724943601752066,
+      "tokenAmount": 194768.40911523896,
+      "bnbReceived": 0.02147406033390721,
+      "usdReceived": 20.868921313697708,
+      "profitUSD": 0,
+      "profitPercent": 0,
+      "txHash": "0x3a21adff6947f575f3474291b0c2bacc81cd137bc3b6b923a1d10461648a0589",
+      "keepTokens": 93243.16719547854,
+      "keepValue": 10
+    },
+    {
+      "timestamp": 1762949673413,
+      "type": "break_even",
+      "priceUSD": 0.0000910280964431935,
+      "tokenAmount": 219712.38311548225,
+      "bnbReceived": 0.020553893761536407,
+      "usdReceived": 19.980234586651928,
+      "profitUSD": 0,
+      "profitPercent": 0,
+      "txHash": "0xd3fab64093e7ce34149bdf233195ff61905c47b1a021db1a8d675ac2e4105ae8",
+      "keepTokens": 110557.81376985929,
+      "keepValue": 10
+    },
+    {
+      "timestamp": 1762961635644,
+      "type": "break_even",
+      "priceUSD": 0.000063586751688288,
+      "tokenAmount": 943592.783196871,
+      "bnbReceived": 0.06212342883610975,
+      "usdReceived": 59.78758791187202,
+      "profitUSD": 0,
+      "profitPercent": 0,
+      "txHash": "0xd3cd258cf64ca5ba1446fdf20157f7860187483c09ac551f7dc390ec63c41c95",
+      "keepTokens": 168514.28765784868,
+      "keepValue": 10
+    },
+    {
+      "timestamp": 1762963326270,
+      "type": "break_even",
+      "priceUSD": 0.0000658925612651612,
+      "tokenAmount": 303524.3981413487,
+      "bnbReceived": 0.03276691581439776,
+      "usdReceived": 31.061397846258355,
+      "profitUSD": 0,
+      "profitPercent": 0,
+      "txHash": "0x3f199a4f82251cb15949d398de6c4f9ea87cff5bc60ac7ef389ae9b932a1eb64",
+      "keepTokens": 259434.50698400143,
+      "keepValue": 10
+    },
+    {
+      "timestamp": 1762963337802,
+      "type": "partial_take_profit",
+      "priceUSD": 0.00007945905256906641,
+      "tokenAmount": 25170.196916979156,
+      "bnbReceived": 0.0021308298968485233,
+      "usdReceived": 2.0199202007175576,
+      "profitUSD": 0.36139145830933694,
+      "profitPercent": 21.789882144857405,
+      "txHash": "0x9b0bc06aa034d1bce8a76aca7b0bc0aa432dfc27580a82a0e6793a2e9ef857c2",
+      "keepTokens": 234264.31006702228,
+      "keepValue": 18.614420128671597
+    },
+    {
+      "timestamp": 1762963361586,
+      "type": "partial_take_profit",
+      "priceUSD": 0.00009840213800623435,
+      "tokenAmount": 37833.3652211749,
+      "bnbReceived": 0.003939254837283523,
+      "usdReceived": 3.7342166230029155,
+      "profitUSD": 0.7280132670288904,
+      "profitPercent": 24.2170332749499,
+      "txHash": "0xf0cbd83424cee8d674e569fdacb7f9cb0b4d792a418d739415a01121c7f6b30d",
+      "keepTokens": 196430.94484584738,
+      "keepValue": 19.329224943416083
+    }
+  ],
+  "stats": {
+    "totalTrades": 4,
+    "totalProfit": 1.7993857673320501,
+    "totalLoss": 0,
+    "winRate": 100,
+    "maxProfit": 0.7280132670288904,
+    "maxLoss": 0,
+    "totalFees": 0
+  },
+  "lastUpdated": 1762968006945
+}
