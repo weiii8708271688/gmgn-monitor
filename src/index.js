@@ -98,6 +98,27 @@ app.get('/api/status', (req, res) => {
   }
 });
 
+// 測試通知發送
+app.post('/api/test-notification', async (req, res) => {
+  try {
+    const message =
+      `🧪 *測試通知*\n\n` +
+      `這是一則測試訊息\n` +
+      `時間: ${toTaiwanString()}\n\n` +
+      `✅ 通知系統運作正常！`;
+
+    await telegram.sendMessage(message);
+
+    res.json({
+      success: true,
+      message: '測試訊息已發送，請檢查 Telegram'
+    });
+  } catch (error) {
+    logger.error('測試通知發送失敗:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 /**
  * 價格監控任務
  */

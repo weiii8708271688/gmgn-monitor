@@ -1034,6 +1034,23 @@ async function checkGMGNNow() {
     }
 }
 
+// 測試 Telegram 通知
+async function testNotification() {
+    try {
+        showNotification('正在發送測試訊息...', 'info');
+        const response = await axios.post(`${API_BASE}/test-notification`);
+
+        if (response.data.success) {
+            showNotification('測試訊息已發送，請檢查 Telegram！', 'success');
+        } else {
+            showNotification('發送失敗: ' + response.data.error, 'error');
+        }
+    } catch (error) {
+        console.error('測試通知失敗:', error);
+        showNotification('發送失敗: ' + (error.response?.data?.error || error.message), 'error');
+    }
+}
+
 // 刷新代幣列表
 async function refreshGMGNTokens() {
     await loadGMGNData();

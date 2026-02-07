@@ -3,6 +3,18 @@ import config from '../../config/config.js';
 import logger from '../../utils/logger.js';
 import { toTaiwanString } from '../../utils/timeHelper.js';
 
+/**
+ * 轉義 Markdown 特殊字符
+ * @param {string} text - 原始文字
+ * @returns {string} 轉義後的文字
+ */
+function escapeMarkdown(text) {
+  if (text === null || text === undefined) {
+    return '';
+  }
+  return String(text).replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, '\\$1');
+}
+
 class TelegramNotification {
   constructor() {
     if (!config.telegram.botToken) {
@@ -91,11 +103,11 @@ class TelegramNotification {
   async sendPriceAlert(alert, currentPrice) {
     const message =
       `🔔 *價格提醒觸發*\n\n` +
-      `代幣: ${alert.symbol}\n` +
-      `條件: ${alert.condition}\n` +
-      `目標價格: ${alert.target_price}\n` +
-      `當前價格: ${currentPrice}\n` +
-      `時間: ${toTaiwanString()}`;
+      `代幣: ${escapeMarkdown(alert.symbol)}\n` +
+      `條件: ${escapeMarkdown(alert.condition)}\n` +
+      `目標價格: ${escapeMarkdown(alert.target_price)}\n` +
+      `當前價格: ${escapeMarkdown(currentPrice)}\n` +
+      `時間: ${escapeMarkdown(toTaiwanString())}`;
 
     await this.sendMessage(message);
   }
@@ -107,11 +119,11 @@ class TelegramNotification {
   async sendOrderExecuted(order) {
     const message =
       `✅ *掛單已執行*\n\n` +
-      `代幣: ${order.symbol}\n` +
-      `類型: ${order.type}\n` +
-      `目標價格: ${order.target_price}\n` +
-      `執行價格: ${order.current_price}\n` +
-      `時間: ${toTaiwanString()}`;
+      `代幣: ${escapeMarkdown(order.symbol)}\n` +
+      `類型: ${escapeMarkdown(order.type)}\n` +
+      `目標價格: ${escapeMarkdown(order.target_price)}\n` +
+      `執行價格: ${escapeMarkdown(order.current_price)}\n` +
+      `時間: ${escapeMarkdown(toTaiwanString())}`;
 
     await this.sendMessage(message);
   }
@@ -121,7 +133,7 @@ class TelegramNotification {
    * @param {string} error - 錯誤訊息
    */
   async sendError(error) {
-    const message = `⚠️ *系統錯誤*\n\n${error}`;
+    const message = `⚠️ *系統錯誤*\n\n${escapeMarkdown(error)}`;
     await this.sendMessage(message);
   }
 }

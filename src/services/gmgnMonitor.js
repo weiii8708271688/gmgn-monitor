@@ -6,8 +6,18 @@ import { toTaiwanString, getTaiwanTime, getTimeDifferenceInSeconds, formatTimeDi
 
 const GMGN_API_URL = 'https://gmgn.ai/vas/api/v1/rank/bsc';
 
-// 監控狀態
-let isMonitoring = false;
+/**
+ * 轉義 Markdown 特殊字符
+ */
+function escapeMarkdown(text) {
+  if (text === null || text === undefined) {
+    return '';
+  }
+  return String(text).replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, '\\$1');
+}
+
+// 監控狀態（預設開啟）
+let isMonitoring = true;
 let authToken = null;
 
 // 根據配置選擇 Telegram 通知服務
@@ -306,61 +316,15 @@ function shouldFilterToken(token) {
   return false;
 }
 
-// 格式化通知消息
+// 格式化通知消息（簡化版）
 function formatNotificationMessage(token, isSub = false) {
   const emoji = isSub ? '⭐' : '🚀';
-  const title = isSub ? '發現新的 BSC 代幣！【SUB】' : '發現新的 BSC 代幣！';
+  const title = isSub ? '新代幣 [SUB]' : '新代幣';
 
   let message = `${emoji} ${title}\n\n`;
-  message += `📝 名稱: ${token.name} (${token.symbol})\n`;
-  message += `📍 地址: \`${token.address}\`\n`;
-  message += `💰 市值: $${token.market_cap?.toLocaleString() || 'N/A'}\n`;
-  message += `💧 流動性: $${token.liquidity?.toLocaleString() || 'N/A'}\n`;
-  message += `👥 持有者: ${token.holder_count || 0}\n`;
-  message += `📊 前10持倉率: ${(token.top_10_holder_rate * 100).toFixed(2)}%\n`;
-
-  if (token.launchpad) {
-    message += `🚀 發射台: ${token.launchpad}\n`;
-  }
-
-  if (token.exchange) {
-    message += `💱 交易所: ${token.exchange}\n`;
-  }
-
-  // 安全指標
-  message += `\n🔒 安全信息:\n`;
-  message += `  • 開源: ${token.open_source || 'N/A'}\n`;
-  message += `  • 放棄所有權: ${token.owner_renounced || 'N/A'}\n`;
-  message += `  • 蜜罐: ${token.is_honeypot || 'N/A'}\n`;
-  message += `  • Rug 風險: ${token.rug_ratio ? (token.rug_ratio * 100).toFixed(2) + '%' : 'N/A'}\n`;
-
-  // 交易數據
-  if (token.swaps_1h) {
-    message += `\n📈 1小時數據:\n`;
-    message += `  • 交易次數: ${token.swaps_1h}\n`;
-    message += `  • 交易量: $${token.volume_1h?.toFixed(2) || 'N/A'}\n`;
-    message += `  • 買入/賣出: ${token.buys_1h}/${token.sells_1h}\n`;
-  }
-
-  // 社交媒體
-  const socials = [];
-  if (token.twitter) {
-    if (isSub) {
-      socials.push(`Twitter: ${token.twitter} (by @${token.twitter_handle})`);
-    } else {
-      socials.push(`Twitter: ${token.twitter}`);
-    }
-  }
-  if (token.website) socials.push(`網站: ${token.website}`);
-  if (token.telegram) socials.push(`Telegram: ${token.telegram}`);
-
-  if (socials.length > 0) {
-    message += `\n🌐 社交媒體:\n`;
-    socials.forEach(s => message += `  • ${s}\n`);
-  }
-
-  // 添加時間戳
-  message += `\n⏰ 發現時間: ${toTaiwanString()}`;
+  message += `${token.name} (${token.symbol})\n`;
+  message += `${token.address}\n`;
+  message += `市值: $${token.market_cap?.toLocaleString() || 'N/A'}`;
 
   return message;
 }
@@ -461,47 +425,50 @@ export async function monitorNewTokens() {
     let upgradedCount = 0; // 從 new_creation 升級到 completed 的數量
 
     // 處理新創建的代幣 (new_creation) - 只處理符合 SUB 條件的
-    for (const token of newCreationTokens) {
-      // 檢查是否已監控
-      if (isAddressMonitored(token.address)) {
-        continue;
-      }
-
-      // 提取 Twitter 狀態 ID
-      let statusId = null;
-      if (token.twitter && token.twitter.includes('/status/')) {
-        const parts = token.twitter.split('/status/');
-        if (parts.length > 1) {
-          statusId = parts[1].split('?')[0];
+    // 如果 Twitter 監控已關閉，直接跳過整個 new_creation 處理
+    if (config.gmgn.enableTwitterMonitor) {
+      for (const token of newCreationTokens) {
+        // 檢查是否已監控
+        if (isAddressMonitored(token.address)) {
+          continue;
         }
+
+        // 提取 Twitter 狀態 ID
+        let statusId = null;
+        if (token.twitter && token.twitter.includes('/status/')) {
+          const parts = token.twitter.split('/status/');
+          if (parts.length > 1) {
+            statusId = parts[1].split('?')[0];
+          }
+        }
+
+        // 檢查推文是否已經通知過
+        if (statusId && isTwitterStatusMonitored(statusId)) {
+          console.log(`跳過已通知的推文: ${statusId}`);
+          continue;
+        }
+
+        // 檢查是否符合 SUB 條件
+        const isSub = isSubToken(token);
+
+        if (isSub) {
+          // 符合 SUB 條件，記錄並通知
+          subTokensCount++;
+          console.log(`發現 SUB 代幣 (new_creation): ${token.symbol} (${token.address}) - Twitter: @${token.twitter_handle}`);
+
+          addMonitoredAddress(token, 'new_creation');
+
+          // 發送通知 (帶 SUB 標記)
+          const message = formatNotificationMessage(token, true);
+          await telegramNotification.sendMessage(message);
+
+          // 避免發送過快
+          await new Promise(resolve => setTimeout(resolve, 1000));
+
+          break; // 每次只處理一個符合 SUB 條件的代幣
+        }
+        // 不符合 SUB 條件的 new_creation 代幣 → 靜默跳過，不記錄
       }
-
-      // 檢查推文是否已經通知過
-      if (statusId && isTwitterStatusMonitored(statusId)) {
-        console.log(`跳過已通知的推文: ${statusId}`);
-        continue;
-      }
-
-      // 檢查是否符合 SUB 條件
-      const isSub = isSubToken(token);
-
-      if (isSub) {
-        // 符合 SUB 條件，記錄並通知
-        subTokensCount++;
-        console.log(`發現 SUB 代幣 (new_creation): ${token.symbol} (${token.address}) - Twitter: @${token.twitter_handle}`);
-
-        addMonitoredAddress(token, 'new_creation');
-
-        // 發送通知 (帶 SUB 標記)
-        const message = formatNotificationMessage(token, true);
-        await telegramNotification.sendMessage(message);
-
-        // 避免發送過快
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        break; // 每次只處理一個符合 SUB 條件的代幣
-      }
-      // 不符合 SUB 條件的 new_creation 代幣 → 靜默跳過，不記錄
     }
     
     // 處理已完成的代幣 (completed)
