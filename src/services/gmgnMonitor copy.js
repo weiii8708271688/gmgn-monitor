@@ -3,7 +3,6 @@ import config from '../config/config.js';
 import TelegramNotification from './notification/telegram.js';
 import TelegramWebhookNotification from './notification/telegramWebhook.js';
 import { toTaiwanString, getTaiwanTime, getTimeDifferenceInSeconds, formatTimeDifference, getTaiwanISOString } from '../utils/timeHelper.js';
-import browserManager from './browserManager.js';
 
 const GMGN_API_URL = 'https://gmgn.ai/vas/api/v1/rank/bsc';
 
@@ -330,7 +329,7 @@ function formatNotificationMessage(token, isSub = false) {
   return message;
 }
 
-// 調用 GMGN API（透過共用瀏覽器，繞過 Cloudflare）
+// 調用 GMGN API
 async function fetchGMGNData() {
   if (!authToken) {
     throw new Error('未設置 GMGN Auth Token');
@@ -369,32 +368,28 @@ async function fetchGMGNData() {
       launchpad_platform: ['fourmeme', 'bn_fourmeme'],
       quote_address_type: [6, 7, 1, 8, 9, 10, 2],
       creation_tools: ['uxento', 'rapid'],
-      limit: 20,
+      limit: 20, // 獲取最近20個已完成的代幣
       launchpad_platform_v2: true
     }
   };
 
-  const finalToken = authToken.startsWith('Bearer ') ? authToken : `Bearer ${authToken}`;
-  const url = `${GMGN_API_URL}?${params}`;
-
-  const result = await browserManager.fetchInPage(url, {
+  const response = await fetch(`${GMGN_API_URL}?${params}`, {
     method: 'POST',
     headers: {
-      'authorization': finalToken,
+      'authorization': authToken,
       'content-type': 'application/json',
-      'accept': 'application/json, text/plain, */*'
+      'accept': 'application/json, text/plain, */*',
+      'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
     },
     body: JSON.stringify(requestBody)
   });
 
-  if (!result) {
-    throw new Error('GMGN API 請求失敗: 瀏覽器無回應');
-  }
-  if (result.error) {
-    throw new Error(`GMGN API 請求失敗: ${result.error}`);
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`GMGN API 請求失敗: ${response.status} - ${text}`);
   }
 
-  return result;
+  return await response.json();
 }
 
 // 監控新幣

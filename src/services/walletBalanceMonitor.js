@@ -1,9 +1,9 @@
 import { ethers } from 'ethers';
-import { chromium } from 'playwright';
 import config from '../config/config.js';
 import db from '../database/db.js';
 import logger from '../utils/logger.js';
 import { getTaiwanISOString } from '../utils/timeHelper.js';
+import browserManager from './browserManager.js';
 
 const WALLET_ADDRESS = '0xe074e46aaa9d3588bed825881c9185a16f9a8555';
 
@@ -32,34 +32,6 @@ const GMGN_QUERY_PARAMS = {
 class WalletBalanceMonitor {
   constructor() {
     this.bscProvider = new ethers.JsonRpcProvider(config.rpc.bsc);
-    this.browser = null;
-    this.page = null; // 改用 Page 物件
-  }
-
-  /**
-   * 初始化常駐分頁 (模擬真實使用者打開網頁)
-   */
-  async initBrowser() {
-    if (this.page) return;
-
-    try {
-      logger.info('🚀 啟動「真實分頁」橋接器 (繞過 Cloudflare)...');
-      this.browser = await chromium.launch({ headless: true });
-      const context = await this.browser.newContext({
-        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-      });
-      
-      this.page = await context.newPage();
-      // 先導航到首頁，確保拿到所有必要的 Cookie 和驗證狀態
-      await this.page.goto('https://gmgn.ai/bsc', { waitUntil: 'domcontentloaded' });
-      // 等待一下讓 Cloudflare 挑戰完成
-      await this.page.waitForTimeout(3000);
-      
-      logger.success('✅ 常駐分頁已就緒');
-    } catch (error) {
-      logger.error('初始化失敗: ' + error.message);
-      this.page = null;
-    }
   }
 
   getGmgnAuthToken() {
@@ -72,30 +44,22 @@ class WalletBalanceMonitor {
    */
   async fetchWalletHoldings(bnbPrice) {
     try {
-      await this.initBrowser();
       const authToken = this.getGmgnAuthToken();
-      if (!authToken || !this.page) return null;
+      if (!authToken) return null;
 
       const finalToken = authToken.startsWith('Bearer ') ? authToken : `Bearer ${authToken}`;
       const params = new URLSearchParams({ ...GMGN_QUERY_PARAMS, limit: '100', orderby: 'last_active_timestamp', direction: 'desc', showsmall: 'true'});
       const url = `https://gmgn.ai/api/v1/wallet_holdings/bsc/${WALLET_ADDRESS}?${params.toString()}`;
 
-      // 核心：在網頁內部執行 API 請求
-      const result = await this.page.evaluate(async ({ url, token }) => {
-        try {
-          const res = await fetch(url, {
-            headers: { 
-                'authorization': token,
-                'accept': 'application/json, text/plain, */*'
-            }
-          });
-          if (!res.ok) return { error: `HTTP ${res.status}` };
-          return await res.json();
-        } catch (e) { return { error: e.message }; }
-      }, { url, token: finalToken });
+      const result = await browserManager.fetchInPage(url, {
+        headers: {
+          'authorization': finalToken,
+          'accept': 'application/json, text/plain, */*'
+        }
+      });
 
-      if (result.error || result.code !== 0) {
-        logger.error(`API 請求攔截: ${result.error || result.msg}`);
+      if (!result || result.error || result.code !== 0) {
+        logger.error(`API 請求攔截: ${result?.error || result?.msg || '無回應'}`);
         return null;
       }
 
