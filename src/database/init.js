@@ -88,9 +88,30 @@ function initDatabase() {
       chain TEXT NOT NULL,
       balance REAL NOT NULL,
       balance_usd REAL,
+      tokens_value_usd REAL,
+      tokens_value_bnb REAL,
+      total_balance_bnb REAL,
+      holdings_count INTEGER DEFAULT 0,
+      holdings_detail TEXT,
       timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // 為已有資料庫新增欄位（若不存在）
+  const newColumns = [
+    { name: 'tokens_value_usd', type: 'REAL' },
+    { name: 'tokens_value_bnb', type: 'REAL' },
+    { name: 'total_balance_bnb', type: 'REAL' },
+    { name: 'holdings_count', type: 'INTEGER DEFAULT 0' },
+    { name: 'holdings_detail', type: 'TEXT' },
+  ];
+  for (const col of newColumns) {
+    try {
+      db.exec(`ALTER TABLE wallet_balance_history ADD COLUMN ${col.name} ${col.type}`);
+    } catch (e) {
+      // 欄位已存在，忽略
+    }
+  }
 
   // 建立索引
   db.exec(`

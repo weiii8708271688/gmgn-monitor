@@ -1121,7 +1121,7 @@ async function loadWalletBalance() {
     }
 }
 
-// 渲染即時餘額
+// 渲染即時餘額（含持倉明細）
 function renderLatestBalance(balance) {
     const container = document.getElementById('latestBalanceContent');
     if (!balance) {
@@ -1129,14 +1129,52 @@ function renderLatestBalance(balance) {
         return;
     }
 
-    const balanceUSD = balance.balance_usd ? `≈ $${formatNumber(balance.balance_usd)}` : '';
+    const hasTotalBnb = balance.total_balance_bnb != null;
+    const displayBnb = hasTotalBnb ? balance.total_balance_bnb : balance.balance;
+    const totalUsd = hasTotalBnb
+        ? (balance.balance_usd || 0) + (balance.tokens_value_usd || 0)
+        : balance.balance_usd;
+
+    let breakdownHtml = '';
+    if (hasTotalBnb) {
+        breakdownHtml = `
+            <div class="balance-breakdown">
+                <div class="breakdown-item">
+                    <span class="breakdown-label">純 BNB</span>
+                    <span class="breakdown-value">${Number(balance.balance).toFixed(6)} BNB</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label">代幣持倉 (${balance.holdings_count || 0} 個)</span>
+                    <span class="breakdown-value">${Number(balance.tokens_value_bnb).toFixed(6)} BNB</span>
+                </div>
+            </div>
+        `;
+    }
+
+    // 持倉明細
+    let holdingsHtml = '';
+    if (balance.holdings && balance.holdings.length > 0) {
+        const holdingItems = balance.holdings
+            .sort((a, b) => b.usdValue - a.usdValue)
+            .slice(0, 10)
+            .map(h => `
+                <div class="holding-item">
+                    <span class="holding-symbol">${h.symbol}</span>
+                    <span class="holding-value">$${formatNumber(h.usdValue)} (${Number(h.bnbValue).toFixed(4)} BNB)</span>
+                </div>
+            `).join('');
+        holdingsHtml = `<div class="holdings-detail">${holdingItems}</div>`;
+    }
+
     container.innerHTML = `
         <div class="balance-display">
             <div class="balance-amount">
-                <span class="balance-number">${Number(balance.balance).toFixed(6)}</span>
+                <span class="balance-number">${Number(displayBnb).toFixed(6)}</span>
                 <span class="balance-symbol">BNB</span>
             </div>
-            ${balanceUSD ? `<div class="balance-usd">${balanceUSD}</div>` : ''}
+            ${totalUsd ? `<div class="balance-usd">≈ $${formatNumber(totalUsd)}</div>` : ''}
+            ${breakdownHtml}
+            ${holdingsHtml}
             <div class="balance-time">查詢時間：${formatDate(balance.timestamp)}</div>
         </div>
     `;
@@ -1150,19 +1188,39 @@ function renderLastRecord(record) {
         return;
     }
 
-    const balanceUSD = record.balance_usd ? `≈ $${formatNumber(record.balance_usd)}` : '';
+    const hasTotalBnb = record.total_balance_bnb != null;
+    const displayBnb = hasTotalBnb ? record.total_balance_bnb : record.balance;
+    const totalUsd = hasTotalBnb
+        ? (record.balance_usd || 0) + (record.tokens_value_usd || 0)
+        : record.balance_usd;
+
+    let breakdownRows = '';
+    if (hasTotalBnb) {
+        breakdownRows = `
+            <div class="record-row">
+                <span class="record-label">純 BNB：</span>
+                <span class="record-value">${Number(record.balance).toFixed(6)} BNB</span>
+            </div>
+            <div class="record-row">
+                <span class="record-label">代幣持倉：</span>
+                <span class="record-value">${Number(record.tokens_value_bnb).toFixed(6)} BNB (${record.holdings_count || 0} 個)</span>
+            </div>
+        `;
+    }
+
     container.innerHTML = `
         <div class="last-record-display">
             <div class="record-row">
-                <span class="record-label">餘額：</span>
-                <span class="record-value">${Number(record.balance).toFixed(6)} BNB</span>
+                <span class="record-label">${hasTotalBnb ? '總餘額：' : '餘額：'}</span>
+                <span class="record-value">${Number(displayBnb).toFixed(6)} BNB</span>
             </div>
-            ${balanceUSD ? `
+            ${totalUsd ? `
             <div class="record-row">
-                <span class="record-label">價值：</span>
-                <span class="record-value">${balanceUSD}</span>
+                <span class="record-label">總價值：</span>
+                <span class="record-value">≈ $${formatNumber(totalUsd)}</span>
             </div>
             ` : ''}
+            ${breakdownRows}
             <div class="record-row">
                 <span class="record-label">時間：</span>
                 <span class="record-value">${formatDate(record.timestamp)}</span>
@@ -1181,7 +1239,23 @@ function renderWalletBalance(balances) {
     }
 
     container.innerHTML = balances.map(balance => {
-        const balanceUSD = balance.balance_usd ? `≈ $${formatNumber(balance.balance_usd)}` : '';
+        const hasTotalBnb = balance.total_balance_bnb != null;
+        const displayBnb = hasTotalBnb ? balance.total_balance_bnb : balance.balance;
+        const totalUsd = hasTotalBnb
+            ? (balance.balance_usd || 0) + (balance.tokens_value_usd || 0)
+            : balance.balance_usd;
+        const totalUsdStr = totalUsd ? `≈ $${formatNumber(totalUsd)}` : '';
+
+        let detailHtml = '';
+        if (hasTotalBnb) {
+            detailHtml = `
+                <div class="balance-detail-row">
+                    <span>純 BNB: ${Number(balance.balance).toFixed(6)}</span>
+                    <span>代幣: ${Number(balance.tokens_value_bnb).toFixed(6)} BNB (${balance.holdings_count || 0} 個)</span>
+                </div>
+            `;
+        }
+
         return `
             <div class="card balance-card">
                 <div class="balance-header">
@@ -1190,9 +1264,10 @@ function renderWalletBalance(balances) {
                 </div>
                 <div class="balance-info">
                     <div class="balance-main">
-                        <span class="balance-value">${Number(balance.balance).toFixed(6)} BNB</span>
-                        ${balanceUSD ? `<span class="balance-usd-small">${balanceUSD}</span>` : ''}
+                        <span class="balance-value">${Number(displayBnb).toFixed(6)} BNB</span>
+                        ${totalUsdStr ? `<span class="balance-usd-small">${totalUsdStr}</span>` : ''}
                     </div>
+                    ${detailHtml}
                 </div>
             </div>
         `;

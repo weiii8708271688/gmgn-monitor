@@ -657,3 +657,77 @@ header h1 {
     font-weight: bold;
     font-family: 'Courier New', monospace;
 }
+
+/* 餘額明細（即時餘額卡片內） */
+.balance-breakdown {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.breakdown-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.breakdown-label {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.breakdown-value {
+    font-size: 16px;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+}
+
+/* 持倉明細列表 */
+.holdings-detail {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.holding-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.holding-symbol {
+    font-weight: bold;
+    min-width: 80px;
+}
+
+.holding-value {
+    font-family: 'Courier New', monospace;
+    opacity: 0.9;
+}
+
+/* 歷史卡片明細列 */
+.balance-detail-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #e9ecef;
+    font-size: 13px;
+    color: #6c757d;
+    font-family: 'Courier New', monospace;
+}

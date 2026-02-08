@@ -336,6 +336,79 @@ class GmgnBrowserAPI {
   }
 
   /**
+   * 計算錢包總 BNB 餘額（純 BNB + 所有代幣持倉換算 BNB）
+   * @param {number} bnbPrice - 當前 BNB 價格（USD），由呼叫者傳入
+   * @param {string} walletAddress - 錢包地址（可選，預設使用配置中的地址）
+   * @returns {Promise<Object>} 總餘額信息
+   */
+  async getTotalWalletBnb(bnbPrice, walletAddress = null) {
+    const wallet = walletAddress || this.walletAddress;
+
+    // 1. 查詢所有持倉
+    const queryParams = getQueryParams();
+    const params = new URLSearchParams({
+      ...queryParams,
+      limit: '100',
+      orderby: 'last_active_timestamp',
+      direction: 'desc',
+      showsmall: 'true',
+      sellout: 'true',
+      hide_abnormal: 'false'
+    });
+    const endpoint = `https://gmgn.ai/api/v1/wallet_holdings/bsc/${wallet}?${params.toString()}`;
+    const result = await this._apiCall('GET', endpoint);
+
+    if (!result.success || !result.data || !result.data.data || !result.data.data.holdings) {
+      return {
+        success: false,
+        error: result.error || '查詢持倉失敗'
+      };
+    }
+
+    // 2. 查詢純 BNB 餘額
+    const bnbResult = await this.getBNBBalance(wallet);
+    const bnbBalance = bnbResult.success ? bnbResult.data.balance : 0;
+
+    // 3. 過濾並加總持倉
+    const allHoldings = result.data.data.holdings;
+    let totalTokensUsd = 0;
+    const validHoldings = [];
+
+    for (const h of allHoldings) {
+      // 跳過成本為 0 的代幣（別人轉入的）
+      if (parseFloat(h.history_bought_cost) === 0) continue;
+      // 跳過 grok5
+      if (h.token?.symbol?.toLowerCase() === 'grok5') continue;
+
+      const usdValue = parseFloat(h.usd_value) || 0;
+      totalTokensUsd += usdValue;
+      validHoldings.push({
+        symbol: h.token?.symbol || 'N/A',
+        address: h.token?.address,
+        balance: h.balance,
+        usdValue,
+        bnbValue: usdValue / bnbPrice
+      });
+    }
+
+    // 4. 換算成 BNB
+    const tokensValueBnb = totalTokensUsd / bnbPrice;
+    const totalBnb = bnbBalance + tokensValueBnb;
+
+    return {
+      success: true,
+      data: {
+        bnbBalance,
+        tokensValueUsd: totalTokensUsd,
+        tokensValueBnb,
+        totalBnb,
+        holdingsCount: validHoldings.length,
+        holdings: validHoldings
+      }
+    };
+  }
+
+  /**
    * 查詢代幣價格（包含歷史價格和交易統計）
    * @param {string} tokenAddress - 代幣地址
    * @returns {Promise<Object>} 代幣價格信息
