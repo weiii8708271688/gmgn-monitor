@@ -309,6 +309,12 @@ function shouldFilterToken(token) {
     return true;
   }
 
+  // 過濾條件 4: holder_count < 150
+  if (token.holder_count < 150) {
+    console.log(`過濾代幣 ${token.symbol} (${token.address}): holder_count=${token.holder_count}`);
+    return true;
+  }
+
   // 可在此添加更多過濾條件
   // 例如: if (token.is_honeypot === 'yes') return true;
   // 例如: if (token.rug_ratio > 0.5) return true;
@@ -365,7 +371,7 @@ async function fetchGMGNData() {
       launchpad_platform_v2: true
     },
     completed: {
-      launchpad_platform: ['fourmeme', 'bn_fourmeme'],
+      launchpad_platform: ['fourmeme', 'bn_fourmeme', 'flap'],
       quote_address_type: [6, 7, 1, 8, 9, 10, 2],
       creation_tools: ['uxento', 'rapid'],
       limit: 20, // 獲取最近20個已完成的代幣
