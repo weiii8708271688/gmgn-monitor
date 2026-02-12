@@ -310,12 +310,6 @@ function shouldFilterToken(token) {
     return true;
   }
 
-  // 過濾條件 4: holder_count < 150
-  if (token.holder_count < 150) {
-    console.log(`過濾代幣 ${token.symbol} (${token.address}): holder_count=${token.holder_count}`);
-    return true;
-  }
-
   // 可在此添加更多過濾條件
   // 例如: if (token.is_honeypot === 'yes') return true;
   // 例如: if (token.rug_ratio > 0.5) return true;
