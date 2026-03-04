@@ -366,7 +366,7 @@ async function fetchGMGNData() {
       launchpad_platform_v2: true
     },
     completed: {
-      launchpad_platform: ['fourmeme', 'bn_fourmeme', 'flap'],
+      launchpad_platform: ['fourmeme', 'bn_fourmeme', 'flap', 'fourmeme_agent'],
       quote_address_type: [6, 7, 1, 8, 9, 10, 2],
       creation_tools: ['uxento', 'rapid'],
       limit: 20,
