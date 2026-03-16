@@ -88,4 +88,53 @@ router.post('/balance/record', async (req, res) => {
   }
 });
 
+/**
+ * GET /api/wallet/withdrawals
+ * 獲取提款記錄列表
+ */
+router.get('/withdrawals', (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const withdrawals = walletBalanceMonitor.getWithdrawals(limit);
+    res.json({ success: true, data: withdrawals });
+  } catch (error) {
+    logger.error('獲取提款記錄失敗:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * POST /api/wallet/withdrawals
+ * 新增提款記錄
+ * Body: { amount_bnb, amount_usd?, note?, timestamp? }
+ */
+router.post('/withdrawals', (req, res) => {
+  try {
+    const { amount_bnb, amount_usd, note, timestamp } = req.body;
+    if (!amount_bnb || isNaN(parseFloat(amount_bnb))) {
+      return res.status(400).json({ success: false, error: 'amount_bnb 必須是有效數字' });
+    }
+    const record = walletBalanceMonitor.recordWithdrawal({ amount_bnb: parseFloat(amount_bnb), amount_usd: amount_usd ? parseFloat(amount_usd) : null, note, timestamp });
+    logger.info(`提款記錄已新增: ${amount_bnb} BNB`);
+    res.json({ success: true, data: record });
+  } catch (error) {
+    logger.error('新增提款記錄失敗:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * DELETE /api/wallet/withdrawals/:id
+ * 刪除提款記錄
+ */
+router.delete('/withdrawals/:id', (req, res) => {
+  try {
+    walletBalanceMonitor.deleteWithdrawal(parseInt(req.params.id));
+    res.json({ success: true });
+  } catch (error) {
+    logger.error('刪除提款記錄失敗:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 export default router;

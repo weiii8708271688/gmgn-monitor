@@ -1093,28 +1093,31 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==================== 錢包餘額功能 ====================
+let balanceChartInstance = null;
 
 // 載入錢包餘額歷史
 async function loadWalletBalance() {
     try {
-        const response = await axios.get(`${API_BASE}/wallet/balance/history?limit=100`);
-        if (response.data.success) {
-            renderWalletBalance(response.data.data);
-        }
+        const [balanceRes, latestRes, lastRecRes, withdrawalRes] = await Promise.all([
+            axios.get(`${API_BASE}/wallet/balance/history?limit=100`),
+            axios.get(`${API_BASE}/wallet/balance/latest`),
+            axios.get(`${API_BASE}/wallet/balance/latest-history`),
+            axios.get(`${API_BASE}/wallet/withdrawals?limit=100`)
+        ]);
 
-        // 載入即時餘額
-        const latestResponse = await axios.get(`${API_BASE}/wallet/balance/latest`);
-        if (latestResponse.data.success && latestResponse.data.data) {
-            renderLatestBalance(latestResponse.data.data);
-        }
+        const balances = balanceRes.data.success ? balanceRes.data.data : [];
+        const withdrawals = withdrawalRes.data.success ? withdrawalRes.data.data : [];
 
-        // 載入上次記錄
-        const lastRecordResponse = await axios.get(`${API_BASE}/wallet/balance/latest-history`);
-        if (lastRecordResponse.data.success && lastRecordResponse.data.data) {
-            renderLastRecord(lastRecordResponse.data.data);
+        if (latestRes.data.success && latestRes.data.data) renderLatestBalance(latestRes.data.data);
+
+        if (lastRecRes.data.success && lastRecRes.data.data) {
+            renderLastRecord(lastRecRes.data.data);
         } else {
             document.getElementById('lastRecordContent').innerHTML = '<p class="no-data">尚無記錄</p>';
         }
+
+        renderBalanceChart(balances, withdrawals);
+        renderCombinedHistory(balances, withdrawals);
     } catch (error) {
         console.error('載入錢包餘額失敗:', error);
         showNotification('載入錢包餘額失敗', 'error');
@@ -1229,38 +1232,157 @@ function renderLastRecord(record) {
     `;
 }
 
-// 渲染錢包餘額列表
-function renderWalletBalance(balances) {
+// 渲染餘額趨勢圖
+function renderBalanceChart(balances, withdrawals) {
+    const canvas = document.getElementById('balanceChart');
+    if (!canvas) return;
+
+    // 餘額資料（時間升序）
+    const sortedBalances = [...balances].reverse();
+    const labels = sortedBalances.map(b => b.timestamp);
+    const balanceData = sortedBalances.map(b => b.total_balance_bnb != null ? Number(b.total_balance_bnb) : Number(b.balance));
+
+    // 提款資料：找最近的餘額值作為 y 座標
+    const withdrawalPoints = withdrawals.map(w => {
+        const wTime = new Date(w.timestamp).getTime();
+        let closest = null, minDiff = Infinity;
+        sortedBalances.forEach((b, i) => {
+            const diff = Math.abs(new Date(b.timestamp).getTime() - wTime);
+            if (diff < minDiff) { minDiff = diff; closest = i; }
+        });
+        const yBase = closest !== null ? balanceData[closest] : null;
+        const yRange = yBase !== null ? (Math.max(...balanceData) - Math.min(...balanceData)) || yBase * 0.05 : 0;
+        return {
+            x: closest !== null ? sortedBalances[closest].timestamp : w.timestamp,
+            y: yBase !== null ? yBase + yRange * 0.10 : null,
+            amount: w.amount_bnb,
+            note: w.note
+        };
+    }).filter(p => p.y !== null);
+
+    if (balanceChartInstance) {
+        balanceChartInstance.destroy();
+        balanceChartInstance = null;
+    }
+
+    if (sortedBalances.length === 0) return;
+
+    balanceChartInstance = new Chart(canvas, {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: '總餘額 (BNB)',
+                    data: balanceData,
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102,126,234,0.1)',
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    fill: true,
+                    tension: 0.3
+                },
+                {
+                    label: '提款',
+                    data: withdrawalPoints,
+                    type: 'scatter',
+                    pointStyle: 'triangle',
+                    rotation: 180,
+                    pointRadius: 8,
+                    pointHoverRadius: 10,
+                    backgroundColor: '#f59e0b',
+                    borderColor: '#d97706',
+                    borderWidth: 2,
+                    showLine: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        title: ctx => formatDate(ctx[0].label),
+                        label: ctx => {
+                            if (ctx.datasetIndex === 0) return `總餘額: ${Number(ctx.parsed.y).toFixed(6)} BNB`;
+                            const labelTs = labels[ctx.dataIndex];
+                            const pt = withdrawalPoints.find(p => p.x === labelTs);
+                            return pt ? `提款: -${Number(pt.amount).toFixed(6)} BNB${pt.note ? ' (' + pt.note + ')' : ''}` : '';
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        maxTicksLimit: 8,
+                        callback: (val, i) => {
+                            const d = new Date(labels[i]);
+                            return isNaN(d) ? '' : `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+                        },
+                        maxRotation: 0
+                    },
+                    grid: { color: 'rgba(0,0,0,0.05)' }
+                },
+                y: {
+                    ticks: { callback: val => val.toFixed(3) + ' BNB' },
+                    grid: { color: 'rgba(0,0,0,0.05)' }
+                }
+            }
+        }
+    });
+}
+
+// 渲染合併歷史（餘額快照 + 提款）
+function renderCombinedHistory(balances, withdrawals) {
     const container = document.getElementById('walletBalanceList');
 
-    if (balances.length === 0) {
-        container.innerHTML = '<p class="no-data">尚無餘額記錄</p>';
+    const balanceItems = balances.map(b => ({ ...b, _type: 'balance' }));
+    const withdrawalItems = withdrawals.map(w => ({ ...w, _type: 'withdrawal' }));
+    const combined = [...balanceItems, ...withdrawalItems].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    if (combined.length === 0) {
+        container.innerHTML = '<p class="no-data">尚無記錄</p>';
         return;
     }
 
-    container.innerHTML = balances.map(balance => {
-        const hasTotalBnb = balance.total_balance_bnb != null;
-        const displayBnb = hasTotalBnb ? balance.total_balance_bnb : balance.balance;
-        const totalUsd = hasTotalBnb
-            ? (balance.balance_usd || 0) + (balance.tokens_value_usd || 0)
-            : balance.balance_usd;
-        const totalUsdStr = totalUsd ? `≈ $${formatNumber(totalUsd)}` : '';
-
-        let detailHtml = '';
-        if (hasTotalBnb) {
-            detailHtml = `
-                <div class="balance-detail-row">
-                    <span>純 BNB: ${Number(balance.balance).toFixed(6)}</span>
-                    <span>代幣: ${Number(balance.tokens_value_bnb).toFixed(6)} BNB (${balance.holdings_count || 0} 個)</span>
+    container.innerHTML = combined.map(item => {
+        if (item._type === 'withdrawal') {
+            return `
+                <div class="card withdrawal-card">
+                    <div class="balance-header">
+                        <span class="withdrawal-label">💸 提款</span>
+                        <span class="balance-date">${formatDate(item.timestamp)}</span>
+                    </div>
+                    <div class="balance-info">
+                        <div class="balance-main">
+                            <span class="withdrawal-amount">-${Number(item.amount_bnb).toFixed(6)} BNB</span>
+                            ${item.amount_usd ? `<span class="balance-usd-small">≈ $${formatNumber(item.amount_usd)}</span>` : ''}
+                        </div>
+                        ${item.note ? `<div class="withdrawal-note">${item.note}</div>` : ''}
+                    </div>
+                    <button class="btn btn-danger btn-sm" onclick="deleteWithdrawal(${item.id})" style="margin-top:8px;align-self:flex-end">刪除</button>
                 </div>
             `;
         }
-
+        const hasTotalBnb = item.total_balance_bnb != null;
+        const displayBnb = hasTotalBnb ? item.total_balance_bnb : item.balance;
+        const totalUsd = hasTotalBnb ? (item.balance_usd || 0) + (item.tokens_value_usd || 0) : item.balance_usd;
+        const totalUsdStr = totalUsd ? `≈ $${formatNumber(totalUsd)}` : '';
+        const detailHtml = hasTotalBnb ? `
+            <div class="balance-detail-row">
+                <span>純 BNB: ${Number(item.balance).toFixed(6)}</span>
+                <span>代幣: ${Number(item.tokens_value_bnb).toFixed(6)} BNB (${item.holdings_count || 0} 個)</span>
+            </div>` : '';
         return `
             <div class="card balance-card">
                 <div class="balance-header">
-                    <span class="balance-chain">${balance.chain}</span>
-                    <span class="balance-date">${formatDate(balance.timestamp)}</span>
+                    <span class="balance-chain">${item.chain}</span>
+                    <span class="balance-date">${formatDate(item.timestamp)}</span>
                 </div>
                 <div class="balance-info">
                     <div class="balance-main">
@@ -1294,3 +1416,94 @@ async function refreshWalletBalance() {
     await loadWalletBalance();
     showNotification('已刷新', 'success');
 }
+
+// 渲染提款記錄
+function renderWithdrawals(withdrawals) {
+    const container = document.getElementById('withdrawalList');
+    if (!container) return;
+    if (!withdrawals || withdrawals.length === 0) {
+        container.innerHTML = '<p class="no-data">尚無提款記錄</p>';
+        return;
+    }
+    container.innerHTML = withdrawals.map(w => `
+        <div class="card withdrawal-card">
+            <div class="balance-header">
+                <span class="withdrawal-label">💸 提款</span>
+                <span class="balance-date">${formatDate(w.timestamp)}</span>
+            </div>
+            <div class="balance-info">
+                <div class="balance-main">
+                    <span class="withdrawal-amount">-${Number(w.amount_bnb).toFixed(6)} BNB</span>
+                    ${w.amount_usd ? `<span class="balance-usd-small">≈ $${formatNumber(w.amount_usd)}</span>` : ''}
+                </div>
+                ${w.note ? `<div class="withdrawal-note">${w.note}</div>` : ''}
+            </div>
+            <button class="btn btn-danger btn-sm" onclick="deleteWithdrawal(${w.id})">刪除</button>
+        </div>
+    `).join('');
+}
+
+// 開啟提款 Modal
+function openWithdrawalModal() {
+    document.getElementById('withdrawalModal').style.display = 'flex';
+}
+
+// 關閉提款 Modal
+function closeWithdrawalModal() {
+    document.getElementById('withdrawalModal').style.display = 'none';
+    document.getElementById('withdrawalForm').reset();
+}
+
+// 刪除提款記錄
+async function deleteWithdrawal(id) {
+    if (!confirm('確定要刪除這筆提款記錄嗎？')) return;
+    try {
+        await axios.delete(`${API_BASE}/wallet/withdrawals/${id}`);
+        showNotification('已刪除', 'success');
+        const [balRes, wRes] = await Promise.all([
+            axios.get(`${API_BASE}/wallet/balance/history?limit=100`),
+            axios.get(`${API_BASE}/wallet/withdrawals?limit=100`)
+        ]);
+        const balances = balRes.data.success ? balRes.data.data : [];
+        const withdrawals = wRes.data.success ? wRes.data.data : [];
+        renderBalanceChart(balances, withdrawals);
+        renderCombinedHistory(balances, withdrawals);
+    } catch (error) {
+        showNotification('刪除失敗: ' + error.message, 'error');
+    }
+}
+
+// 提款表單提交
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('withdrawalForm');
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(form));
+            if (!data.amount_bnb) return;
+            // 將 datetime-local 轉為 ISO string (若有填)
+            if (data.timestamp) {
+                data.timestamp = new Date(data.timestamp).toISOString();
+            } else {
+                delete data.timestamp;
+            }
+            try {
+                const res = await axios.post(`${API_BASE}/wallet/withdrawals`, data);
+                if (res.data.success) {
+                    showNotification('✅ 提款記錄已儲存', 'success');
+                    closeWithdrawalModal();
+                    const [balRes, wRes] = await Promise.all([
+                        axios.get(`${API_BASE}/wallet/balance/history?limit=100`),
+                        axios.get(`${API_BASE}/wallet/withdrawals?limit=100`)
+                    ]);
+                    const balances = balRes.data.success ? balRes.data.data : [];
+                    const withdrawals = wRes.data.success ? wRes.data.data : [];
+                    renderBalanceChart(balances, withdrawals);
+                    renderCombinedHistory(balances, withdrawals);
+                }
+            } catch (error) {
+                showNotification('儲存失敗: ' + error.message, 'error');
+            }
+        });
+    }
+});

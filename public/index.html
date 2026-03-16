@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>加密貨幣交易機器人</title>
     <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -106,6 +107,7 @@
                 <h2>錢包餘額記錄</h2>
                 <div>
                     <button class="btn btn-primary" onclick="recordBalanceNow()">📊 立即記錄</button>
+                    <button class="btn btn-warning" onclick="openWithdrawalModal()">💸 記錄提款</button>
                     <button class="btn btn-secondary" onclick="refreshWalletBalance()">🔄 刷新</button>
                 </div>
             </div>
@@ -113,6 +115,7 @@
             <div class="wallet-info-card">
                 <h3>錢包地址</h3>
                 <p class="wallet-address">0xe074e46aaa9d3588bed825881c9185a16f9a8555</p>
+                <p class="wallet-address">0x2F1Cb64083cdA1E6bf91cd1C85c08880e49E2E46</p>
                 <p class="help-text">自動記錄時間：每天中午12:00和凌晨00:00</p>
             </div>
 
@@ -130,10 +133,50 @@
                 </div>
             </div>
 
+            <div class="chart-card">
+                <h3>餘額趨勢圖</h3>
+                <div class="chart-legend">
+                    <span class="legend-item legend-balance">── 總餘額 (BNB)</span>
+                    <span class="legend-item legend-withdrawal">▼ 提款</span>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="balanceChart"></canvas>
+                </div>
+            </div>
+
             <div class="section-header">
                 <h3>歷史記錄</h3>
             </div>
             <div id="walletBalanceList" class="list"></div>
+        </div>
+    </div>
+
+    <!-- 提款記錄 Modal -->
+    <div id="withdrawalModal" class="modal">
+        <div class="modal-content">
+            <h3>記錄提款</h3>
+            <form id="withdrawalForm">
+                <div class="form-group">
+                    <label>提款金額 (BNB) <span class="required">*</span></label>
+                    <input type="number" name="amount_bnb" step="0.000001" min="0" required placeholder="例：0.5">
+                </div>
+                <div class="form-group">
+                    <label>當時 USD 價值（選填）</label>
+                    <input type="number" name="amount_usd" step="0.01" min="0" placeholder="例：150.00">
+                </div>
+                <div class="form-group">
+                    <label>備註（選填）</label>
+                    <input type="text" name="note" placeholder="例：轉到交易所">
+                </div>
+                <div class="form-group">
+                    <label>時間（選填，留空=現在）</label>
+                    <input type="datetime-local" name="timestamp">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeWithdrawalModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">儲存</button>
+                </div>
+            </form>
         </div>
     </div>
 
