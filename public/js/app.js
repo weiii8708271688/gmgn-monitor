@@ -1288,7 +1288,7 @@ function renderBalanceChart(balances, withdrawals) {
                     data: withdrawalPoints,
                     type: 'scatter',
                     pointStyle: 'triangle',
-                    rotation: 180,
+                    rotation: 0,
                     pointRadius: 8,
                     pointHoverRadius: 10,
                     backgroundColor: '#f59e0b',
