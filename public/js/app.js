@@ -1301,7 +1301,7 @@ function renderBalanceChart(balances, withdrawals) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
+            interaction: { mode: 'nearest', intersect: false },
             plugins: {
                 legend: { display: false },
                 tooltip: {
@@ -1309,8 +1309,7 @@ function renderBalanceChart(balances, withdrawals) {
                         title: ctx => formatDate(ctx[0].label),
                         label: ctx => {
                             if (ctx.datasetIndex === 0) return `總餘額: ${Number(ctx.parsed.y).toFixed(6)} BNB`;
-                            const labelTs = labels[ctx.dataIndex];
-                            const pt = withdrawalPoints.find(p => p.x === labelTs);
+                            const pt = withdrawalPoints[ctx.dataIndex];
                             return pt ? `提款: -${Number(pt.amount).toFixed(6)} BNB${pt.note ? ' (' + pt.note + ')' : ''}` : '';
                         }
                     }
