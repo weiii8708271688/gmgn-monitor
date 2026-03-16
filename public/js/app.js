@@ -1254,7 +1254,7 @@ function renderBalanceChart(balances, withdrawals) {
         const yRange = yBase !== null ? (Math.max(...balanceData) - Math.min(...balanceData)) || yBase * 0.05 : 0;
         return {
             x: closest !== null ? sortedBalances[closest].timestamp : w.timestamp,
-            y: yBase !== null ? yBase + yRange * 0.10 : null,
+            y: yBase !== null ? yBase - yRange * 0.10 : null,
             amount: w.amount_bnb,
             note: w.note
         };
