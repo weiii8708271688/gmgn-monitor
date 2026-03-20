@@ -8,6 +8,11 @@ data/*.db-shm
 data/*.db-wal
 data/*.db-journal
 
+# Google OAuth credentials
+google-oauth-client.json
+google-token.json
+google-credentials.json
+
 # Session and auth files
 .gmgn-session.json
 */.gmgn-session.json

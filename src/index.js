@@ -14,6 +14,7 @@ import db from './database/db.js';
 import * as gmgnMonitor from './services/gmgnMonitor.js';
 import { toTaiwanString } from './utils/timeHelper.js';
 import walletBalanceMonitor from './services/walletBalanceMonitor.js';
+import { backupToDrive } from './services/googleDriveBackup.js';
 
 // 引入路由
 import tokensRouter from './routes/tokens.js';
@@ -257,6 +258,15 @@ cron.schedule('*/1 * * * * *', async () => {
     await gmgnMonitor.monitorNewTokens();
   } catch (error) {
     logger.error('GMGN 監控任務失敗:', error.message);
+  }
+});
+
+// 設定 Google Drive 備份任務（每天凌晨3點）
+cron.schedule('0 3 * * *', async () => {
+  try {
+    await backupToDrive();
+  } catch (error) {
+    logger.error('Google Drive 備份任務失敗:', error.message);
   }
 });
 
