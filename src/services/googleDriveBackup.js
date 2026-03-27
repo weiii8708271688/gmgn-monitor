@@ -1,5 +1,7 @@
 import { google } from 'googleapis';
 import fs from 'fs';
+import { mkdirSync } from 'fs';
+import path from 'path';
 import logger from '../utils/logger.js';
 
 const CLIENT_SECRET_PATH = './google-oauth-client.json';
@@ -72,6 +74,71 @@ export async function backupToDrive() {
     await cleanOldBackups(drive);
   } catch (error) {
     logger.error('備份到 Google Drive 失敗:', error.message);
+  }
+}
+
+export async function restoreFromDrive() {
+  if (!FOLDER_ID) {
+    logger.warn('GOOGLE_DRIVE_FOLDER_ID 未設定，跳過從 Google Drive 還原');
+    return false;
+  }
+
+  if (!fs.existsSync(CLIENT_SECRET_PATH)) {
+    logger.warn(`找不到 OAuth 憑證檔案: ${CLIENT_SECRET_PATH}，跳過還原`);
+    return false;
+  }
+
+  if (!fs.existsSync(TOKEN_PATH)) {
+    logger.warn(`找不到 Token 檔案: ${TOKEN_PATH}，請先執行 node auth-google.js 授權`);
+    return false;
+  }
+
+  try {
+    logger.info('找不到本地資料庫，嘗試從 Google Drive 還原最新備份...');
+
+    const auth = getAuthClient();
+    const drive = google.drive({ version: 'v3', auth });
+
+    // 找出資料夾內所有 trading-*.db 檔案，依建立時間降序排列
+    const res = await drive.files.list({
+      q: `'${FOLDER_ID}' in parents and name contains 'trading-' and trashed = false`,
+      orderBy: 'createdTime desc',
+      pageSize: 1,
+      fields: 'files(id, name, createdTime)',
+    });
+
+    const files = res.data.files || [];
+    if (files.length === 0) {
+      logger.warn('Google Drive 上找不到任何備份檔案');
+      return false;
+    }
+
+    const latest = files[0];
+    logger.info(`找到最新備份: ${latest.name} (${latest.createdTime})`);
+
+    // 確保 data 目錄存在
+    mkdirSync(path.dirname(DB_PATH), { recursive: true });
+
+    // 下載到本地
+    const dest = fs.createWriteStream(DB_PATH);
+    const fileRes = await drive.files.get(
+      { fileId: latest.id, alt: 'media' },
+      { responseType: 'stream' }
+    );
+
+    await new Promise((resolve, reject) => {
+      fileRes.data
+        .on('error', reject)
+        .pipe(dest)
+        .on('finish', resolve)
+        .on('error', reject);
+    });
+
+    logger.info(`資料庫還原成功: ${DB_PATH}`);
+    return true;
+  } catch (error) {
+    logger.error('從 Google Drive 還原失敗:', error.message);
+    return false;
   }
 }
 

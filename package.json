@@ -5,8 +5,8 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
+    "start": "node src/database/autoRestore.js && node src/index.js",
+    "dev": "node src/database/autoRestore.js && nodemon src/index.js",
     "init-db": "node src/database/init.js"
   },
   "keywords": [
