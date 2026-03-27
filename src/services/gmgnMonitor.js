@@ -99,6 +99,10 @@ function loadAuthToken() {
     if (result) {
       authToken = result.value;
       console.log('已從資料庫加載 GMGN Auth Token');
+    } else if (process.env.GMGN_AUTH_TOKEN) {
+      authToken = process.env.GMGN_AUTH_TOKEN;
+      saveAuthToken(authToken);
+      console.log('已從 .env 載入 GMGN Auth Token 並儲存至資料庫');
     }
   } catch (error) {
     console.error('加載 Auth Token 失敗:', error.message);
